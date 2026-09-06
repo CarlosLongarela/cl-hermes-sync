@@ -17,7 +17,7 @@
 
 ```bash
 # Install (one-line)
-curl -fsSL https://raw.githubusercontent.com/CarlosLongarela/hermes-portable/main/cl-hermes-sync.sh \
+curl -fsSL https://raw.githubusercontent.com/CarlosLongarela/cl-hermes-sync/main/cl-hermes-sync.sh \
   -o /usr/local/bin/cl-hermes-sync.sh && chmod +x /usr/local/bin/cl-hermes-sync.sh
 
 # Export your Hermes config

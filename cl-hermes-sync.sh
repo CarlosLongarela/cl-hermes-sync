@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# cl-hermes-sync.sh — Hermes Agent Sync Export/Import Tool
+# cl-hermes-sync.sh - Hermes Agent Sync Export/Import Tool
 #
 # Exports/imports Hermes Agent config, skills, memories, plugins, cron,
 # auth, and sync state into a portable directory or .tar.gz package.
@@ -20,18 +20,18 @@
 #   cl-hermes-sync.sh import ~/hermes.tgz                  # restore from tgz
 #
 # Package structure (.hermes-sync/):
-#   manifest.json    — metadata + checksums
-#   config.yaml      — ~/.hermes/config.yaml
-#   SOUL.md          — persona file
-#   skills/          — all custom skills
-#   memories/        — MEMORY.md + USER.md
-#   cron/            — cron job definitions
-#   plugins/         — plugin configs (not code)
-#   sync/            — hermes-sync state (optional, --include-sync)
-#   auth/auth.json   — auth tokens (opt-in)
-#   auth/.env        — API keys (opt-in)
-#   setup.sh         — self-contained restore script
-#   README.md        — instructions
+#   manifest.json    - metadata + checksums
+#   config.yaml      - ~/.hermes/config.yaml
+#   SOUL.md          - persona file
+#   skills/          - all custom skills
+#   memories/        - MEMORY.md + USER.md
+#   cron/            - cron job definitions
+#   plugins/         - plugin configs (not code)
+#   sync/            - hermes-sync state (optional, --include-sync)
+#   auth/auth.json   - auth tokens (opt-in)
+#   auth/.env        - API keys (opt-in)
+#   setup.sh         - self-contained restore script
+#   README.md        - instructions
 #
 
 set -euo pipefail
@@ -40,7 +40,7 @@ HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
 FORMAT_VERSION=1
 SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 
-# ─── Colors ──────────────────────────────────────────────
+# --- Colors ----------------------------------
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -54,10 +54,10 @@ log_warn()  { echo -e "${YELLOW}⚠${NC} $*"; }
 log_error() { echo -e "${RED}✗${NC} $*" >&2; }
 log_step()  { echo -e "${CYAN}==>${NC} $*"; }
 
-# ─── Help ────────────────────────────────────────────────
+# --- Help ------------------------------------
 show_help() {
     cat <<EOF
-${CYAN}hm-portable.sh — Hermes Agent Portable Export/Import Tool${NC}
+${CYAN}hm-portable.sh - Hermes Agent Portable Export/Import Tool${NC}
 
 Migrate Hermes Agent between machines. Packages config, skills,
 memories, plugins, cron, and optionally auth/sync state.
@@ -87,12 +87,12 @@ EXAMPLES:
 EOF
 }
 
-# ─── Utility: checksum ───────────────────────────────────
+# --- Utility: checksum ---------------------------------
 sha256_file() {
     sha256sum "$1" | cut -d' ' -f1
 }
 
-# ─── Export ──────────────────────────────────────────────
+# --- Export ----------------------------------
 do_export() {
     local output_dir=""
     local yes_mode=false
@@ -143,7 +143,7 @@ do_export() {
 
     $quiet || log_step "Exporting Hermes Agent from ${HERMES_HOME}"
 
-    # ── Config ──
+    # --- Config ---
     if [[ -f "$HERMES_HOME/config.yaml" ]]; then
         cp "$HERMES_HOME/config.yaml" "$pkg_dir/config.yaml"
         $quiet || log_ok "config.yaml ($(wc -c < "$HERMES_HOME/config.yaml") bytes)"
@@ -151,13 +151,13 @@ do_export() {
         log_warn "config.yaml not found"
     fi
 
-    # ── SOUL.md ──
+    # --- SOUL.md ---
     if [[ -f "$HERMES_HOME/SOUL.md" ]]; then
         cp "$HERMES_HOME/SOUL.md" "$pkg_dir/SOUL.md"
         $quiet || log_ok "SOUL.md ($(wc -c < "$HERMES_HOME/SOUL.md") bytes)"
     fi
 
-    # ── Skills ──
+    # --- Skills ---
     if [[ -d "$HERMES_HOME/skills" ]] && [[ -n "$(ls -A "$HERMES_HOME/skills" 2>/dev/null)" ]]; then
         local skill_count
         skill_count=$(find "$HERMES_HOME/skills" -type f | wc -l)
@@ -166,7 +166,7 @@ do_export() {
         $quiet || log_ok "skills/ ($skill_count files)"
     fi
 
-    # ── Memories ──
+    # --- Memories ---
     mkdir -p "$pkg_dir/memories"
     if ls "$HERMES_HOME/memories/"*.md &>/dev/null 2>&1; then
         cp "$HERMES_HOME/memories/"*.md "$pkg_dir/memories/"
@@ -175,7 +175,7 @@ do_export() {
         $quiet || log_ok "memories/ ($mem_count files)"
     fi
 
-    # ── Cron ──
+    # --- Cron ---
     if [[ -d "$HERMES_HOME/cron" ]] && [[ -n "$(ls -A "$HERMES_HOME/cron" 2>/dev/null)" ]]; then
         rsync -a "$HERMES_HOME/cron/" "$pkg_dir/cron/"
         local cron_count
@@ -183,9 +183,9 @@ do_export() {
         $quiet || log_ok "cron/ ($cron_count jobs)"
     fi
 
-    # ── Plugins (config only) ──
+    # --- Plugins (config only) ---
     if [[ -d "$HERMES_HOME/plugins" ]]; then
-        # Only copy config files, not actual plugin code — use relative paths
+        # Only copy config files, not actual plugin code - use relative paths
         (cd "$HERMES_HOME" && find "plugins" -type f \( -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.toml' \) \
             -exec sh -c 'mkdir -p "$1/$(dirname "{}")" && cp "$2/{}" "$1/{}"' _ "$pkg_dir" "$HERMES_HOME" \; ) 2>/dev/null || true
         local plugin_count
@@ -193,7 +193,7 @@ do_export() {
         $quiet || log_ok "plugins/ ($plugin_count config files)"
     fi
 
-    # ── Auth (opt-in) ──
+    # --- Auth (opt-in) ---
     local has_auth=false
     local has_env=false
 
@@ -216,7 +216,7 @@ do_export() {
             if $yes_mode; then
                 cp "$HERMES_HOME/.env" "$pkg_dir/auth/.env"
                 has_env=true
-                $quiet || log_info ".env included (--yes mode) — contains API keys!"
+                $quiet || log_info ".env included (--yes mode) - contains API keys!"
             else
                 read -r -p "$(echo -e "${YELLOW}?${NC} Include .env (API keys)? This contains secrets! [y/N] ")" include_env
                 if [[ "$include_env" == "y" || "$include_env" == "Y" ]]; then
@@ -230,7 +230,7 @@ do_export() {
         $quiet || log_info "Skipping secrets (--no-secrets)"
     fi
 
-    # ── Sync state (opt-in, ~44MB) ──
+    # --- Sync state (opt-in, ~44MB) ---
     if $include_sync && [[ -d "$HERMES_HOME/sync" ]]; then
         rsync -a --filter='exclude *.db-wal' --filter='exclude *.db-shm' "$HERMES_HOME/sync/" "$pkg_dir/sync/"
         local sync_count
@@ -240,19 +240,19 @@ do_export() {
         $quiet || log_info "Sync state excluded (use --include-sync to include)"
     fi
 
-    # ── Sessions (opt-in, ~75MB) ──
+    # --- Sessions (opt-in, ~75MB) ---
     if $include_sessions && [[ -d "$HERMES_HOME/sessions" ]]; then
         mkdir -p "$pkg_dir/sessions"
         rsync -a "$HERMES_HOME/sessions/" "$pkg_dir/sessions/"
         $quiet || log_ok "sessions/ included"
     fi
 
-    # ── State DB (if requested) ──
+    # --- State DB (if requested) ---
     if $include_sessions && [[ -f "$HERMES_HOME/state.db" ]]; then
         cp "$HERMES_HOME/state.db" "$pkg_dir/state.db" 2>/dev/null || log_warn "state.db busy (Hermes running?)"
     fi
 
-    # ── Write manifest ──
+    # --- Write manifest ---
     local hermes_ver
     hermes_ver=$(hermes --version 2>/dev/null | head -1 | tr -d '\n\r' || echo "unknown")
     local hostname_str
@@ -296,10 +296,10 @@ do_export() {
 }
 MANIFEST_EOF
 
-    # ── Write setup.sh (self-contained restore script) ──
+    # --- Write setup.sh (self-contained restore script) ---
     cat > "$pkg_dir/setup.sh" <<'SETUP_EOF'
 #!/bin/bash
-# hm-portable restore script — auto-generated
+# hm-portable restore script - auto-generated
 # Run this on the target machine to restore Hermes Agent configuration.
 
 set -euo pipefail
@@ -321,7 +321,7 @@ PKG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
 MANIFEST="${PKG_DIR}/manifest.json"
 
-# ── OS Detection ────────────────────────────────
+# --- OS Detection ---------------------------------
 detect_os() {
     case "$(uname -s)" in
         Linux*)     echo "linux" ;;
@@ -333,9 +333,9 @@ detect_os() {
 TARGET_OS=$(detect_os)
 
 echo ""
-echo -e "${CYAN}══════════════════════════════════════════${NC}"
+echo -e "${CYAN}==========================================${NC}"
 echo -e "${CYAN}  Hermes Agent Portable Restore           ${NC}"
-echo -e "${CYAN}══════════════════════════════════════════${NC}"
+echo -e "${CYAN}==========================================${NC}"
 echo ""
 echo -e "  Target OS: ${YELLOW}${TARGET_OS}${NC}"
 echo -e "  Source:    ${BLUE}$(python3 -c "
@@ -346,7 +346,7 @@ try:
 except: print('(unknown)')" 2>/dev/null || echo '(unknown)')${NC}"
 echo ""
 
-# ── OS Compatibility Check ──────────────────────
+# --- OS Compatibility Check ----------------------
 OS_ADJUSTMENTS=""
 os_check() {
     local config_file="$1"
@@ -389,9 +389,9 @@ os_check() {
 
 
 echo ""
-echo -e "${CYAN}══════════════════════════════════════════${NC}"
+echo -e "${CYAN}==========================================${NC}"
 echo -e "${CYAN}  Hermes Agent Portable Restore           ${NC}"
-echo -e "${CYAN}══════════════════════════════════════════${NC}"
+echo -e "${CYAN}==========================================${NC}"
 echo ""
 echo -e "  Target OS: ${YELLOW}${TARGET_OS}${NC}"
 
@@ -454,7 +454,7 @@ log_step "Restoring Hermes Agent configuration..."
 
 restore_item "config.yaml" "$HERMES_HOME/config.yaml" "config.yaml"
 
-# ── Run OS compatibility check on restored config ──
+# --- Run OS compatibility check on restored config ---
 if [[ -f "$HERMES_HOME/config.yaml" ]]; then
     log_step "Checking OS compatibility..."
     os_check "$HERMES_HOME/config.yaml"
@@ -489,9 +489,9 @@ if [[ -f "$PKG_DIR/state.db" ]]; then
 fi
 
 echo ""
-echo -e "${GREEN}══════════════════════════════════════════${NC}"
+echo -e "${GREEN}==========================================${NC}"
 echo -e "${GREEN}  Restore complete!                        ${NC}"
-echo -e "${GREEN}══════════════════════════════════════════${NC}"
+echo -e "${GREEN}==========================================${NC}"
 echo ""
 
 if [[ -n "$OS_ADJUSTMENTS" ]]; then
@@ -515,8 +515,8 @@ echo ""
 SETUP_EOF
     chmod +x "$pkg_dir/setup.sh"
 
-    # ── Write README ──
-    # ── Write README (pre-compute dynamic values to avoid heredoc expansion issues) ──
+    # --- Write README ---
+    # --- Write README (pre-compute dynamic values to avoid heredoc expansion issues) ---
     local readme_export_note="Exported from ${hostname_str} ($(uname -s)) at $(date -u +%Y-%m-%dT%H:%M:%SZ)."
     local readme_os_note="Cross-OS migration supported: setup.sh auto-detects Linux/macOS/Windows and adjusts config."
     {
@@ -527,16 +527,16 @@ SETUP_EOF
         echo ""
         echo "## Contents"
         echo ""
-        echo "- \`config.yaml\` — Hermes configuration"
-        echo "- \`SOUL.md\` — Persona definition"
+        echo "- \`config.yaml\` - Hermes configuration"
+        echo "- \`SOUL.md\` - Persona definition"
         local skill_count_readme
         skill_count_readme=$(find "$pkg_dir/skills" -type f 2>/dev/null | wc -l)
-        echo "- \`skills/\` — All custom skills (${skill_count_readme} files)"
-        echo "- \`memories/\` — MEMORY.md + USER.md"
-        echo "- \`cron/\` — Cron job definitions"
-        echo "- \`plugins/\` — Plugin configs"
-        echo "- \`auth/\` — Auth tokens and environment variables (if included)"
-        echo "- \`setup.sh\` — Self-contained restore script"
+        echo "- \`skills/\` - All custom skills (${skill_count_readme} files)"
+        echo "- \`memories/\` - MEMORY.md + USER.md"
+        echo "- \`cron/\` - Cron job definitions"
+        echo "- \`plugins/\` - Plugin configs"
+        echo "- \`auth/\` - Auth tokens and environment variables (if included)"
+        echo "- \`setup.sh\` - Self-contained restore script"
         echo ""
         echo "## Restore"
         echo ""
@@ -557,7 +557,7 @@ SETUP_EOF
         echo '- Check \`manifest.json\` for checksums and metadata'
     } > "$pkg_dir/README.md"
 
-    # ── Final output ──
+    # --- Final output ---
     if $do_tar; then
         local final_path="${output_dir}"
         mkdir -p "$(dirname "$final_path")"
@@ -566,9 +566,9 @@ SETUP_EOF
         pkg_size=$(du -h "$final_path" | cut -f1)
         rm -rf "$temp_dir"
         echo ""
-        echo -e "${GREEN}══════════════════════════════════════════${NC}"
+        echo -e "${GREEN}==========================================${NC}"
         echo -e "${GREEN}  Export complete!                         ${NC}"
-        echo -e "${GREEN}══════════════════════════════════════════${NC}"
+        echo -e "${GREEN}==========================================${NC}"
         echo ""
         echo "  Package: ${final_path} (${pkg_size})"
         echo "  To restore on another machine:"
@@ -587,9 +587,9 @@ SETUP_EOF
         local pkg_size
         pkg_size=$(du -sh "$final_path" | cut -f1)
         echo ""
-        echo -e "${GREEN}══════════════════════════════════════════${NC}"
+        echo -e "${GREEN}==========================================${NC}"
         echo -e "${GREEN}  Export complete!                         ${NC}"
-        echo -e "${GREEN}══════════════════════════════════════════${NC}"
+        echo -e "${GREEN}==========================================${NC}"
         echo ""
         echo "  Package: ${final_path}/ (${pkg_size})"
         echo "  To restore on another machine:"
@@ -600,7 +600,7 @@ SETUP_EOF
     fi
 }
 
-# ─── Import ──────────────────────────────────────────────
+# --- Import ----------------------------------
 do_import() {
     local src_path="$1"
 
@@ -644,9 +644,9 @@ do_import() {
     exported_at=$(python3 -c "import json; print(json.load(open('$pkg_dir/manifest.json')).get('exported_at','unknown'))" 2>/dev/null || echo "unknown")
 
     echo ""
-    echo -e "${CYAN}══════════════════════════════════════════${NC}"
+    echo -e "${CYAN}==========================================${NC}"
     echo -e "${CYAN}  Hermes Agent Portable Import             ${NC}"
-    echo -e "${CYAN}══════════════════════════════════════════${NC}"
+    echo -e "${CYAN}==========================================${NC}"
     echo ""
     echo "  Source: ${source_device} @ ${exported_at}"
     echo "  Target: ${HERMES_HOME}"
@@ -666,7 +666,7 @@ do_import() {
     fi
 }
 
-# ─── List package contents ──────────────────────────────
+# --- List package contents ------------------------------
 do_list() {
     local src_path="$1"
     local temp_dir=""
@@ -711,7 +711,7 @@ print(f'  Exported:   {m.get(\"exported_at\",\"?\")}')
 print(f'  Source OS:  {source_os}')
 print(f'  Target OS:  {target_os}')
 if source_os != target_os:
-    print(f'  ⚠ Cross-OS migration — setup.sh will auto-adjust config')
+    print(f'  ⚠ Cross-OS migration - setup.sh will auto-adjust config')
 print(f'  From:       {m.get(\"source_device\",\"?\")}')
 print(f'  Version:    {m.get(\"hermes_version\",\"?\")}')
 print()
@@ -740,7 +740,7 @@ print()
     return 0
 }
 
-# ─── Main ────────────────────────────────────────────────
+# --- Main -----------------------------------
 main() {
     if [[ $# -eq 0 ]]; then
         show_help
