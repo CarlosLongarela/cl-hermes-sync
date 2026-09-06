@@ -1,0 +1,13 @@
+# Local configuration (copy from cl-hermes-sync.conf.example)
+cl-hermes-sync.conf
+
+# Local config in the fallback locations, if kept in-tree by mistake
+.cl-hermes-sync.conf
+
+# Exported packages / archives
+/cl-hermes-sync/
+*.tgz
+*.tar.gz
+
+# Backups created by import
+*.bak.*
