@@ -1,25 +1,25 @@
 #!/bin/bash
 #
-# hm-portable.sh — Hermes Agent Portable Export/Import Tool
+# cl-hermes-sync.sh — Hermes Agent Sync Export/Import Tool
 #
 # Exports/imports Hermes Agent config, skills, memories, plugins, cron,
 # auth, and sync state into a portable directory or .tar.gz package.
 # Use this to migrate Hermes between machines.
 #
 # Usage:
-#   hm-portable.sh export [--output <path>] [--yes] [--no-secrets] [--tar] [--include-sync]
-#   hm-portable.sh import <package-path>
-#   hm-portable.sh list  <package-path>
-#   hm-portable.sh help
+#   cl-hermes-sync.sh export [--output <path>] [--yes] [--no-secrets] [--tar] [--include-sync]
+#   cl-hermes-sync.sh import <package-path>
+#   cl-hermes-sync.sh list  <package-path>
+#   cl-hermes-sync.sh help
 #
 # Examples:
-#   hm-portable.sh export                              # export to .hm-portable/
-#   hm-portable.sh export --tar --output ~/hermes.tgz  # export as tgz
-#   hm-portable.sh export --no-secrets                 # skip auth.json + .env
-#   hm-portable.sh import .hm-portable                  # restore on new machine
-#   hm-portable.sh import ~/hermes.tgz                  # restore from tgz
+#   cl-hermes-sync.sh export                              # export to .hermes-sync/
+#   cl-hermes-sync.sh export --tar --output ~/hermes.tgz  # export as tgz
+#   cl-hermes-sync.sh export --no-secrets                 # skip auth.json + .env
+#   cl-hermes-sync.sh import .hermes-sync                  # restore on new machine
+#   cl-hermes-sync.sh import ~/hermes.tgz                  # restore from tgz
 #
-# Package structure (.hm-portable/):
+# Package structure (.hermes-sync/):
 #   manifest.json    — metadata + checksums
 #   config.yaml      — ~/.hermes/config.yaml
 #   SOUL.md          — persona file

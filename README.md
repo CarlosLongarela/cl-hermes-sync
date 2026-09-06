@@ -1,41 +1,41 @@
-# Hermes Portable
+# Hermes Sync
 
-**Export and restore your Hermes Agent configuration across machines — including across different operating systems.**
+**Export and restore your Hermes Agent configuration across machines - including across different operating systems.**
 
-`hm-portable.sh` packages your Hermes Agent config, skills, memory, cron jobs, and plugin configs into a portable directory or `.tar.gz` archive. Move it to another machine, run `import`, and your Hermes is ready — same config, same skills, same memory.
+`cl-hermes-sync.sh` packages your Hermes Agent config, skills, memory, cron jobs, and plugin configs into a portable directory or `.tar.gz` archive. Move it to another machine, run `import`, and your Hermes is ready - same config, same skills, same memory.
 
 ## Features
 
-- **Export** — collect config.yaml, SOUL.md, skills (1300+ files), memories, cron, plugins into a portable package
-- **Import** — restore everything on a new machine with automatic backup of existing config
-- **Cross-OS** — auto-detects Linux, macOS, Windows; adjusts OS-specific settings (`auto_source_bashrc`, `persistent_shell`) so you don't have to
-- **Flexible** — export as a directory for inspection, or as a `.tar.gz` for easy transfer (scp, Dropbox, USB)
-- **Secure by default** — auth tokens and `.env` API keys require explicit opt-in. Full `--no-secrets` mode for CI/scripted use
-- **Self-contained** — the package includes `setup.sh` that runs standalone. No tool dependency, just `bash`
+- **Export** - collect config.yaml, SOUL.md, skills (1300+ files), memories, cron, plugins into a portable package
+- **Import** - restore everything on a new machine with automatic backup of existing config
+- **Cross-OS** - auto-detects Linux, macOS, Windows; adjusts OS-specific settings (`auto_source_bashrc`, `persistent_shell`) so you don't have to
+- **Flexible** - export as a directory for inspection, or as a `.tar.gz` for easy transfer (scp, Dropbox, USB)
+- **Secure by default** - auth tokens and `.env` API keys require explicit opt-in. Full `--no-secrets` mode for CI/scripted use
+- **Self-contained** - the package includes `setup.sh` that runs standalone. No tool dependency, just `bash`
 
 ## Quick Start
 
 ```bash
 # Install (one-line)
-curl -fsSL https://raw.githubusercontent.com/CarlosLongarela/hermes-portable/main/hm-portable.sh \
-  -o /usr/local/bin/hm-portable.sh && chmod +x /usr/local/bin/hm-portable.sh
+curl -fsSL https://raw.githubusercontent.com/CarlosLongarela/hermes-portable/main/cl-hermes-sync.sh \
+  -o /usr/local/bin/cl-hermes-sync.sh && chmod +x /usr/local/bin/cl-hermes-sync.sh
 
 # Export your Hermes config
-hm-portable.sh export --tar --output ~/hermes-backup.tgz
+cl-hermes-sync.sh export --tar --output ~/hermes-backup.tgz
 
 # See what's in the package
-hm-portable.sh list ~/hermes-backup.tgz
+cl-hermes-sync.sh list ~/hermes-backup.tgz
 
 # Move it to another machine (scp, Dropbox, USB...)
 # Then import:
-hm-portable.sh import ~/hermes-backup.tgz
+cl-hermes-sync.sh import ~/hermes-backup.tgz
 ```
 
 ## Why
 
-Hermes Agent stores all its configuration in `~/.hermes/` — skills (1300+ files), memories, cron jobs, auth tokens. Moving to a new machine means manually copying all of this and adjusting for OS differences. This tool automates it:
+Hermes Agent stores all its configuration in `~/.hermes/` - skills (1300+ files), memories, cron jobs, auth tokens. Moving to a new machine means manually copying all of this and adjusting for OS differences. This tool automates it:
 
-| Concern | Manual | With hm-portable |
+| Concern | Manual | With cl-hermes-sync |
 |---|---|---|
 | Copy skills/ | `rsync` across 1300 files | Included |
 | Adjust `auto_source_bashrc` for macOS | Edit config.yaml by hand | ⚡ Auto-detected |
@@ -49,26 +49,26 @@ Hermes Agent stores all its configuration in `~/.hermes/` — skills (1300+ file
 ### Export
 
 ```bash
-# Basic — directory mode
-hm-portable.sh export
+# Basic - directory mode
+cl-hermes-sync.sh export
 
 # Tar.gz mode (ready for transfer)
-hm-portable.sh export --tar --output ~/hermes-$(date +%F).tgz
+cl-hermes-sync.sh export --tar --output ~/hermes-$(date +%F).tgz
 
 # Non-interactive (skip auth/.env prompts)
-hm-portable.sh export --yes
+cl-hermes-sync.sh export --yes
 
 # Skip secrets entirely (CI-safe)
-hm-portable.sh export --no-secrets
+cl-hermes-sync.sh export --no-secrets
 
 # Include sync state and session history
-hm-portable.sh export --include-sync --include-sessions
+cl-hermes-sync.sh export --include-sync --include-sessions
 ```
 
 ### List
 
 ```bash
-hm-portable.sh list ~/hermes-backup.tgz
+cl-hermes-sync.sh list ~/hermes-backup.tgz
 ```
 
 Output:
@@ -100,10 +100,10 @@ Total: 121.6 MB
 
 ```bash
 # From a directory
-hm-portable.sh import /path/to/.hm-portable
+cl-hermes-sync.sh import /path/to/.cl-hermes-sync
 
 # From a tarball
-hm-portable.sh import ~/hermes-backup.tgz
+cl-hermes-sync.sh import ~/hermes-backup.tgz
 ```
 
 The import script:
@@ -133,7 +133,7 @@ The import script:
 - Hermes Agent core (`pip install hermes-agent`)
 - hermes-agent source code (~2.2 GB)
 - Node.js runtime (~1.4 GB)
-- `logs/`, `cache/` — machine-specific, regenerated
+- `logs/`, `cache/` - machine-specific, regenerated
 
 ## Cross-OS Migration
 
@@ -153,7 +153,6 @@ No manual editing required. The adjustments are printed during import so you kno
 hermes-portable/
 ├── hm-portable.sh     # Main CLI tool (single file, ~30 KB)
 ├── README.md          # This file
-├── README.zh.md       # Chinese documentation
 └── LICENSE            # MIT
 ```
 
