@@ -17,7 +17,7 @@
 
 ```bash
 # Install (one-line)
-curl -fsSL https://raw.githubusercontent.com/zpage/hermes-portable/main/hm-portable.sh \
+curl -fsSL https://raw.githubusercontent.com/CarlosLongarela/hermes-portable/main/hm-portable.sh \
   -o /usr/local/bin/hm-portable.sh && chmod +x /usr/local/bin/hm-portable.sh
 
 # Export your Hermes config
