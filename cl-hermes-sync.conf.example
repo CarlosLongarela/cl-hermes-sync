@@ -1,0 +1,115 @@
+# cl-hermes-sync configuration
+# -----------------------------------------------------------------------------
+# Copy this file to "cl-hermes-sync.conf" (same directory as cl-hermes-sync.sh)
+# and edit it. It is sourced as Bash, so keep it to plain VAR="value"
+# assignments and simple arrays - do not put commands here.
+#
+# Every value below can still be overridden on the command line
+# (--with / --without / --os / --set / --hermes-home / --config ...).
+#
+# Alternative locations searched, in order:
+#   1. --config <path>
+#   2. $CL_HERMES_SYNC_CONFIG
+#   3. ./cl-hermes-sync.conf next to the script   <-- documented default
+#   4. $XDG_CONFIG_HOME/cl-hermes-sync/config.conf
+#   5. $HOME/.cl-hermes-sync.conf
+#
+# The file must be owned by you and must not be group/world-writable
+# (chmod 600), otherwise it is ignored.
+# -----------------------------------------------------------------------------
+
+
+# === 1. What to sync by default =============================================
+# Booleans: true / false. These are the defaults used by BOTH export and
+# import when you do not pass --with / --without.
+#
+# On import, the tool additionally restores whatever the package actually
+# contains; set a component to false here (or use --without) to skip it.
+
+CL_HERMES_SYNC_CONFIG=true        # ~/.hermes/config.yaml
+CL_HERMES_SYNC_SOUL=true          # ~/.hermes/SOUL.md
+CL_HERMES_SYNC_SKILLS=true        # ~/.hermes/skills/
+CL_HERMES_SYNC_MEMORIES=true      # ~/.hermes/memories/
+CL_HERMES_SYNC_CRON=true          # ~/.hermes/cron/
+CL_HERMES_SYNC_PLUGINS=true       # ~/.hermes/plugins/  (config files only)
+CL_HERMES_SYNC_SYNC=false         # ~/.hermes/sync/     (large state dir)
+CL_HERMES_SYNC_SESSIONS=false     # ~/.hermes/sessions/ + state.db (large)
+CL_HERMES_SYNC_SECRETS=false      # auth.json + .env    (tokens / API keys)
+
+
+# === 2. Where the Hermes install lives =====================================
+# Leave empty to use $HERMES_HOME, or ~/.hermes as a last resort.
+
+CL_HERMES_HOME_DIR=""
+
+
+# === 2b. Secrets, signing, Windows paths, post-import checks ================
+
+# Encrypt auth.json / .env inside the package (needs `age` or `openssl`).
+# The passphrase is asked on the terminal, or taken from the environment
+# variable CL_HERMES_SECRETS_PASSPHRASE for scripted use.
+CL_HERMES_SECRETS_ENCRYPT=true
+
+# GPG detached-sign CHECKSUMS.sha256 on export; verify it on import.
+# Needs a usable secret key. Optionally pin the key id / uid.
+CL_HERMES_SIGN=false
+CL_HERMES_GPG_KEY=""
+
+# Path form written into files when expanding for a Windows target:
+#   msys   -> /c/Users/Carlos      (what Git Bash / MSYS Hermes expects)
+#   native -> C:\Users\Carlos
+CL_HERMES_WINDOWS_PATH_STYLE="msys"
+
+# After an import, warn about absolute paths in config.yaml (and resolved
+# placeholder targets) that do not exist on the destination machine.
+CL_HERMES_POST_IMPORT_CHECKS=true
+
+
+# === 3. Which package parts get path templatization =========================
+# On export, absolute paths inside these parts are replaced with portable
+# @@CL_HERMES_*@@ placeholders; on import they are expanded back for the
+# target OS. skills/ and plugins/ are intentionally left untouched.
+# Valid tokens: config cron memories plugins skills sync
+
+CL_HERMES_TEMPLATIZE_TARGETS="config cron memories"
+
+
+# === 4. Per-OS user home ===================================================
+# Becomes the @@CL_HERMES_HOME@@ placeholder. Native Windows paths
+# (C:\Users\Carlos or C:/Users/Carlos) are accepted and normalized to
+# MSYS form (/c/Users/Carlos) internally.
+
+CL_HERMES_HOME_LINUX="/home/carlos"
+CL_HERMES_HOME_MACOS="/Users/carlos"
+CL_HERMES_HOME_WINDOWS="/c/Users/Carlos"
+
+
+# === 5. Per-OS Obsidian vault ==============================================
+# Becomes the @@CL_HERMES_OBSIDIAN_VAULT@@ placeholder. Leave the three
+# values empty to disable this placeholder entirely.
+
+CL_HERMES_OBSIDIAN_VAULT_LINUX="/home/carlos/Obsidian/TabernaWP"
+CL_HERMES_OBSIDIAN_VAULT_MACOS="/Users/carlos/Obsidian/TabernaWP"
+CL_HERMES_OBSIDIAN_VAULT_WINDOWS="/c/Users/Carlos/Documents/Obsidian/TabernaWP"
+
+
+# === 6. Extra custom placeholders =========================================
+# For every NAME listed here, define CL_HERMES_<NAME>_LINUX / _MACOS /
+# _WINDOWS. Each becomes @@CL_HERMES_<NAME>@@ in the package.
+#
+# Longer paths are substituted first, so a value nested inside HOME (or
+# inside another placeholder) is collapsed correctly.
+
+CL_HERMES_EXTRA_PLACEHOLDERS=()
+
+# Example - a projects directory and a Dropbox root:
+#
+# CL_HERMES_EXTRA_PLACEHOLDERS=(PROJECTS DROPBOX)
+#
+# CL_HERMES_PROJECTS_LINUX="/home/carlos/projects"
+# CL_HERMES_PROJECTS_MACOS="/Users/carlos/projects"
+# CL_HERMES_PROJECTS_WINDOWS="/c/Users/Carlos/projects"
+#
+# CL_HERMES_DROPBOX_LINUX="/home/carlos/Dropbox"
+# CL_HERMES_DROPBOX_MACOS="/Users/carlos/Dropbox"
+# CL_HERMES_DROPBOX_WINDOWS="/c/Users/Carlos/Dropbox"
